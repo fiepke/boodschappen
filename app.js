@@ -47,7 +47,7 @@ let searchQuery = "";
 let sb = null;
 let channel = null;
 let syncing = false;
-
+let currentUser = null;
 function saveLocalState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
@@ -66,6 +66,7 @@ function itemToDb(item) {
   return {
     product: item.name,
     category: item.category,
+    user_id: currentUser ? currentUser.id : null,
     quantity: Number(item.qty) || 1,
     checked: !!item.needed
   };
@@ -83,25 +84,32 @@ async function loadSupabaseLibrary() {
 }
 
 async function fetchRemoteItems() {
+  if (!currentUser) return [];
+
   const {data,error} = await sb
     .from(TABLE)
-    .select("id,product,category,quantity,checked,created_at")
+    .select("id,product,category,quantity,checked,created_at,user_id")
+    .eq("user_id", currentUser.id)
     .order("id", {ascending:true});
+
   if (error) throw error;
   return data || [];
 }
 
 async function seedRemoteIfEmpty() {
+  if (!currentUser) return [];
+
   const rows = await fetchRemoteItems();
   if (rows.length) return rows;
 
-  const localRows = state.items.map(itemToDb);
+  const localRows = freshState().items.map(itemToDb);
   if (!localRows.length) return [];
 
   const {data,error} = await sb
     .from(TABLE)
     .insert(localRows)
-    .select("id,product,category,quantity,checked,created_at");
+    .select("id,product,category,quantity,checked,created_at,user_id");
+
   if (error) throw error;
   return data || [];
 }
@@ -125,7 +133,8 @@ async function initSync() {
   try {
     await loadSupabaseLibrary();
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+const { data: userData } = await sb.auth.getUser();
+currentUser = userData?.user || null;
     const rows = await seedRemoteIfEmpty();
     state.items = rows.map(dbToItem);
     saveLocalState();
@@ -145,23 +154,41 @@ async function initSync() {
 }
 
 async function updateRemoteItem(item) {
-  if (!sb || String(item.id).startsWith("local-")) return;
-  const {error} = await sb.from(TABLE).update(itemToDb(item)).eq("id", item.id);
+  if (!sb || !currentUser || String(item.id).startsWith("local-")) return;
+
+  const {error} = await sb
+    .from(TABLE)
+    .update(itemToDb(item))
+    .eq("id", item.id)
+    .eq("user_id", currentUser.id);
+
   if (error) throw error;
 }
 
+async function deleteRemoteItem(item) {
+  if (!sb || !currentUser || String(item.id).startsWith("local-")) return;
+
+  const {error} = await sb
+    .from(TABLE)
+    .delete()
+    .eq("id", item.id)
+    .eq("user_id", currentUser.id);
+
+  if (error) throw error;
+}
 async function insertRemoteItem(item) {
-  if (!sb) return null;
-  const {data,error} = await sb.from(TABLE).insert(itemToDb(item)).select().single();
+  if (!sb || !currentUser) return null;
+
+  const {data,error} = await sb
+    .from(TABLE)
+    .insert(itemToDb(item))
+    .select()
+    .single();
+
   if (error) throw error;
   return data;
 }
 
-async function deleteRemoteItem(item) {
-  if (!sb || String(item.id).startsWith("local-")) return;
-  const {error} = await sb.from(TABLE).delete().eq("id", item.id);
-  if (error) throw error;
-}
 
 const listEl = document.getElementById("shoppingList");
 const addForm = document.getElementById("addForm");
