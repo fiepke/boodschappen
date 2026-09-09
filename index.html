@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#1f7a4d" />
+  <title>Mijn Boodschappen</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <h1>🛒 Mijn Boodschappen</h1>
+      <p>Vink aan wat je nodig hebt.</p>
+    </div>
+    <button id="installBtn" class="secondary install-btn" hidden>App installeren</button>
+  </header>
+
+  <main>
+    <section class="toolbar card">
+      <div class="toolbar-row">
+        <button id="showAllBtn" class="active">Alles</button>
+        <button id="showNeededBtn">Alleen nodig</button>
+        <button id="uncheckAllBtn" class="secondary">Alles uitvinken</button>
+      </div>
+      <div class="summary" id="summary"></div>
+    </section>
+
+    <section class="card add-card">
+      <h2>Product toevoegen</h2>
+      <form id="addForm">
+        <input id="productName" type="text" placeholder="Bijv. Melk" autocomplete="off" required />
+        <select id="categorySelect"></select>
+        <button type="submit">+ Toevoegen</button>
+      </form>
+    </section>
+
+    <section id="shoppingList" class="list-wrap"></section>
+  </main>
+
+  <template id="categoryTemplate">
+    <section class="category card">
+      <div class="category-head">
+        <h2></h2>
+        <span class="count"></span>
+      </div>
+      <div class="items"></div>
+    </section>
+  </template>
+
+  <template id="itemTemplate">
+    <div class="item-row">
+      <label class="item-main">
+        <input type="checkbox" />
+        <span class="checkmark"></span>
+        <span class="item-name"></span>
+      </label>
+      <div class="item-actions">
+        <button class="qty-btn secondary" title="Aantal">1x</button>
+        <button class="delete-btn danger" title="Verwijderen">×</button>
+      </div>
+    </div>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>

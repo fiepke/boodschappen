@@ -1,0 +1,21 @@
+{
+  "name": "Mijn Boodschappen",
+  "short_name": "Boodschappen",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f3f5f4",
+  "theme_color": "#1f7a4d",
+  "description": "Een simpele boodschappenlijst die je op je telefoon kunt installeren.",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
