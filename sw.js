@@ -1,8 +1,8 @@
 const CACHE="boodschappen-cache-v1";
-const ASSETS=["./","./index.html","./style.css","./app.js","./manifest.json","./icons/icon-192.png","./icons/icon-512.png"];
+ const ACTIVA=["./","./index.html","./style.css","./app.js","./manifest.json","./icoon-192.png","./icoon-512.png"];
 
 self.addEventListener("install",event=>{
-  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));
+  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ACTIVA)));
   self.skipWaiting();
 });
 
