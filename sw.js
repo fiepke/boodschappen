@@ -1,24 +1,28 @@
-const CACHE="boodschappen-cache-v2";
+const CACHE="boodschappen-cache-v3";
 const ACTIVA=["./","./index.html","./style.css","./app.js","./manifest.json","./icoon-192.png","./icoon-512.png"];
 
 self.addEventListener("install",event=>{
-  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ACTIVA)));
   self.skipWaiting();
+  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ACTIVA)));
 });
 
 self.addEventListener("activate",event=>{
-  event.waitUntil(
-    Promise.all([
-      self.clients.claim(),
-      caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))
-    ])
-  );
+  event.waitUntil(Promise.all([
+    self.clients.claim(),
+    caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))
+  ]));
 });
 
 self.addEventListener("fetch",event=>{
   const req=event.request;
+  const url=new URL(req.url);
 
-  // Voor HTML/JS/CSS eerst internet proberen, zodat updates sneller binnenkomen.
+  // Supabase/API-verkeer nooit uit cache halen.
+  if(url.hostname.endsWith(".supabase.co") || url.pathname.includes("/rest/v1/")){
+    event.respondWith(fetch(req));
+    return;
+  }
+
   if(req.mode==="navigate" || ["script","style"].includes(req.destination)){
     event.respondWith(
       fetch(req).then(response=>{
@@ -30,7 +34,6 @@ self.addEventListener("fetch",event=>{
     return;
   }
 
-  // Voor iconen en overige bestanden cache-first.
   event.respondWith(
     caches.match(req).then(cached=>cached || fetch(req).then(response=>{
       const copy=response.clone();
