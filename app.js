@@ -296,7 +296,26 @@ function render() {
               alert("Aantal kon niet online worden opgeslagen.");
             }
           });
+const resetQty=document.createElement("button");
+resetQty.type="button";
+resetQty.className="qty-btn secondary";
+resetQty.textContent="↺ 1x";
 
+resetQty.addEventListener("click", async()=>{
+  const old=item.qty || 1;
+  item.qty=1;
+  saveLocalState();
+  render();
+
+  try {
+    await updateRemoteItem(item);
+  } catch(e) {
+    item.qty=old;
+    saveLocalState();
+    render();
+    alert("Aantal kon niet online worden teruggezet naar 1x.");
+  }
+});
           const del=document.createElement("button");
           del.type="button";
           del.className="delete-btn danger";
@@ -317,7 +336,7 @@ function render() {
             }
           });
 
-          actions.append(qty,del);
+          actions.append(qty,resetQty,del);
           row.append(label,actions);
           itemsBox.appendChild(row);
         });
