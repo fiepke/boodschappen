@@ -1,5 +1,5 @@
 const STORAGE_KEY = "mijn-boodschappen-v2";
-const SUPABASE_URL = "https://aliitsfybqjstzxiwwce.supabase.co";
+const SUPABASE_URL = "https://aliitsfybqjstzxiwvce.supabase.co";
 const SUPABASE_KEY = "sb_publishable_06tYrlNpi-7JqpO_rFc4wQ_VeBsTPlJ";
 const TABLE = "shopping_items";
 
