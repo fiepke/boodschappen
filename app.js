@@ -135,6 +135,10 @@ async function initSync() {
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const { data: userData } = await sb.auth.getUser();
 currentUser = userData?.user || null;
+    if (!currentUser) {
+  showLoginScreen();
+  return;
+}
     const rows = await seedRemoteIfEmpty();
     state.items = rows.map(dbToItem);
     saveLocalState();
@@ -198,6 +202,93 @@ const showAllBtn = document.getElementById("showAllBtn");
 const showNeededBtn = document.getElementById("showNeededBtn");
 const uncheckAllBtn = document.getElementById("uncheckAllBtn");
 const summary = document.getElementById("summary");
+// Inlogscherm
+function showLoginScreen() {
+  const loginBox = document.createElement("div");
+  loginBox.id = "loginBox";
+  loginBox.style.maxWidth = "500px";
+  loginBox.style.margin = "30px auto";
+  loginBox.style.padding = "24px";
+  loginBox.style.background = "white";
+  loginBox.style.borderRadius = "18px";
+  loginBox.style.boxShadow = "0 8px 25px rgba(0,0,0,.10)";
+
+  loginBox.innerHTML = `
+    <h2 style="margin-top:0">Mijn Boodschappen</h2>
+    <p>Log in om je eigen boodschappenlijst te openen.</p>
+
+    <input id="loginEmail"
+      type="email"
+      placeholder="E-mailadres"
+      style="width:100%;box-sizing:border-box;padding:12px;margin-bottom:10px;border:1px solid #b7c8be;border-radius:10px;font-size:16px">
+
+    <input id="loginPassword"
+      type="password"
+      placeholder="Wachtwoord"
+      style="width:100%;box-sizing:border-box;padding:12px;margin-bottom:14px;border:1px solid #b7c8be;border-radius:10px;font-size:16px">
+
+    <button id="loginBtn"
+      style="width:100%;padding:12px;background:#198754;color:white;border:0;border-radius:10px;font-weight:bold;font-size:16px">
+      Inloggen
+    </button>
+
+    <button id="signupBtn"
+      style="width:100%;padding:12px;margin-top:10px;background:#eef4f0;border:0;border-radius:10px;font-weight:bold;font-size:16px">
+      Nieuw account maken
+    </button>
+
+    <div id="loginMessage"
+      style="margin-top:12px;text-align:center"></div>
+  `;
+
+  document.body.innerHTML = "";
+  document.body.appendChild(loginBox);
+
+  document.getElementById("loginBtn").addEventListener("click", async () => {
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    const msg = document.getElementById("loginMessage");
+
+    msg.textContent = "Bezig met inloggen...";
+
+    const { error } = await sb.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      msg.textContent = "Inloggen mislukt: " + error.message;
+      return;
+    }
+
+    location.reload();
+  });
+
+  document.getElementById("signupBtn").addEventListener("click", async () => {
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    const msg = document.getElementById("loginMessage");
+
+    if (!email || password.length < 6) {
+      msg.textContent = "Vul een geldig e-mailadres en minimaal 6 tekens als wachtwoord in.";
+      return;
+    }
+
+    msg.textContent = "Account wordt aangemaakt...";
+
+    const { error } = await sb.auth.signUp({
+      email,
+      password
+    });
+
+    if (error) {
+      msg.textContent = "Account maken mislukt: " + error.message;
+      return;
+    }
+
+    msg.textContent = "Account aangemaakt. Controleer eventueel je e-mail en log daarna in.";
+  });
+}
 // Zoekfunctie
 const searchBox = document.createElement("input");
 searchBox.type = "search";
