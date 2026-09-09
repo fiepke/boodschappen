@@ -43,6 +43,7 @@ function loadLocalState() {
 
 let state = loadLocalState();
 let filter = "all";
+let searchQuery = "";
 let sb = null;
 let channel = null;
 let syncing = false;
@@ -170,6 +171,25 @@ const showAllBtn = document.getElementById("showAllBtn");
 const showNeededBtn = document.getElementById("showNeededBtn");
 const uncheckAllBtn = document.getElementById("uncheckAllBtn");
 const summary = document.getElementById("summary");
+// Zoekfunctie
+const searchBox = document.createElement("input");
+searchBox.type = "search";
+searchBox.placeholder = "🔍 Zoek product...";
+searchBox.autocomplete = "off";
+searchBox.style.width = "100%";
+searchBox.style.padding = "12px 14px";
+searchBox.style.margin = "0 0 14px 0";
+searchBox.style.border = "1px solid #b7c8be";
+searchBox.style.borderRadius = "12px";
+searchBox.style.fontSize = "16px";
+searchBox.style.boxSizing = "border-box";
+
+listEl.parentNode.insertBefore(searchBox, listEl);
+
+searchBox.addEventListener("input", () => {
+  searchQuery = searchBox.value.trim();
+  render();
+});
 
 Object.keys(defaultData).forEach(cat=>{
   const opt=document.createElement("option");
@@ -186,7 +206,10 @@ function render() {
   let shownAny=false;
 
   for(const category of allCategories) {
-    let items = state.items.filter(i=>i.category===category);
+    let items = state.items.filter(i =>
+  i.category === category &&
+  i.name.toLowerCase().includes(searchQuery.toLowerCase())
+);
     if(filter==="needed") items = items.filter(i=>i.needed);
     if(items.length===0 && filter==="needed") continue;
 
