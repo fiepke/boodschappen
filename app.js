@@ -230,9 +230,7 @@ function render() {
     const itemsBox=document.createElement("div");
     itemsBox.className="items";
 
-    const source = filter==="needed"
-      ? items
-      : state.items.filter(i=>i.category===category);
+   const source = items;
 
     if(source.length===0) {
       const empty=document.createElement("div");
