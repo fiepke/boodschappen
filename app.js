@@ -4,15 +4,83 @@ const SUPABASE_KEY = "sb_publishable_06tYrlNpi-7JqpO_rFc4wQ_VeBsTPlJ";
 const TABLE = "shopping_items";
 
 const defaultData = {
-  "Brood & bakkerij": ["Brood","Bolletjes","Krentenbollen","Beschuit","Crackers"],
-  "Beleg": ["Kaas","Ham","Worst","Pindakaas","Hagelslag","Jam"],
-  "Zuivel": ["Melk","Karnemelk","Yoghurt","Boter","Eieren"],
-  "Frisdrank": ["Cola","Sinas","7-Up","Water","Spa rood","Sap"],
-  "Groente & fruit": ["Aardappelen","Uien","Tomaten","Komkommer","Appels","Bananen"],
-  "Vlees & vleeswaren": ["Gehakt","Kip","Hamburgers","Spek","Vleeswaren"],
-  "Snacks": ["Chips","Koek","Snoep","Noten"],
-  "Diepvries": ["Friet","Pizza","Groente diepvries","IJs"],
-  "Huishouden": ["Toiletpapier","Keukenrol","Afwasmiddel","Vuilniszakken","Wasmiddel"],
+  "Aardappelen, groente en fruit": [
+    "Aardappelen","Uien","Knoflook","Tomaten","Komkommer","Paprika",
+    "Sla","Wortels","Bloemkool","Broccoli","Champignons","Prei",
+    "Courgette","Appels","Bananen","Sinaasappels","Mandarijnen",
+    "Druiven","Aardbeien","Peren","Citroen"
+  ],
+
+  "Verse maaltijden en gemak": [
+    "Maaltijdsalade","Verse soep","Pizza vers","Pasta maaltijd",
+    "Kant-en-klaar maaltijd","Pannenkoeken","Wraps"
+  ],
+
+  "Vlees, vis en vega": [
+    "Gehakt","Kipfilet","Kip","Hamburgers","Spek","Slavinken",
+    "Schnitzel","Worst","Biefstuk","Varkensvlees","Zalm",
+    "Vissticks","Tonijn","Vegetarische burgers"
+  ],
+
+  "Zuivel, boter en eieren": [
+    "Melk","Karnemelk","Yoghurt","Vla","Kwark","Boter",
+    "Margarine","Eieren","Slagroom","Kookroom","Crème fraîche"
+  ],
+
+  "Vleeswaren, kaas en tapas": [
+    "Ham","Kipfilet beleg","Salami","Boterhamworst","Filet americain",
+    "Jonge kaas","Belegen kaas","Oude kaas","Smeerkaas","Brie",
+    "Mozzarella","Olijven"
+  ],
+
+  "Brood & bakkerij": [
+    "Brood","Bolletjes","Krentenbollen","Beschuit","Crackers",
+    "Croissants","Stokbrood","Pistolets","Tijgerbrood"
+  ],
+
+  "Ontbijt en beleg": [
+    "Pindakaas","Hagelslag","Jam","Chocopasta","Honing",
+    "Ontbijtkoek","Muesli","Cornflakes"
+  ],
+
+  "Frisdrank en sappen": [
+    "Cola","Cola Zero","Sinas","7-Up","Sprite","Cassis",
+    "IJsthee","Appelsap","Sinaasappelsap","Multivitaminesap",
+    "Spa rood","Spa blauw"
+  ],
+
+  "Koffie en thee": [
+    "Koffie","Koffiebonen","Koffiepads","Cappuccino",
+    "Thee","Suiker","Koffiemelk"
+  ],
+
+  "Snacks, koek en snoep": [
+    "Chips","Nootjes","Koek","Chocolade","Snoep",
+    "Drop","Liga","Mueslirepen"
+  ],
+
+  "Diepvries": [
+    "Friet","Pizza","Kroketten","Frikandellen","Bitterballen",
+    "IJs","Diepvriesgroente","Diepvriesfruit"
+  ],
+
+  "Sauzen, kruiden en koken": [
+    "Mayonaise","Ketchup","Curry","Mosterd","Knoflooksaus",
+    "Pastasaus","Tomatenpuree","Olijfolie","Bakboter",
+    "Zout","Peper","Kruiden","Bouillon"
+  ],
+
+  "Huishouden": [
+    "Toiletpapier","Keukenrol","Afwasmiddel","Vaatwastabletten",
+    "Wasmiddel","Wasverzachter","Vuilniszakken","Schoonmaakmiddel",
+    "Sponsjes","Aluminiumfolie","Bakpapier"
+  ],
+
+  "Persoonlijke verzorging": [
+    "Shampoo","Douchegel","Tandpasta","Tandenborstel",
+    "Deodorant","Zeep","Scheerschuim"
+  ],
+
   "Overig": []
 };
 
