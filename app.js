@@ -439,8 +439,10 @@ function render() {
   i.category === category &&
   i.name.toLowerCase().includes(searchQuery.toLowerCase())
 );
-    if(filter==="needed") items = items.filter(i=>i.needed);
-    if(items.length===0 && filter==="needed") continue;
+  if(filter==="needed") items = items.filter(i=>i.needed);
+
+if(searchQuery && items.length===0) continue;
+if(items.length===0 && filter==="needed") continue;
 
     shownAny=true;
     const section=document.createElement("section");
@@ -449,7 +451,7 @@ function render() {
     const head=document.createElement("div");
     head.className="category-head";
    const h2=document.createElement("h2");
-const isCollapsed = collapsedCategories.has(category);
+const isCollapsed = collapsedCategories.has(category) && searchQuery === "";
 h2.textContent = `${isCollapsed ? "▶" : "▼"} ${category}`;
 
 const count=document.createElement("span");
