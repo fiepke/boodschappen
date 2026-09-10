@@ -113,7 +113,7 @@ let state = loadLocalState();
 let filter = "all";
 let searchQuery = "";
 const collapsedCategories = new Set();
-let sb = null;
+
 let sb = null;
 let channel = null;
 let syncing = false;
