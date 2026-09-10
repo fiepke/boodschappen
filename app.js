@@ -195,22 +195,48 @@ async function fetchOffers() {
   });
 }
 
-function getBestOfferForProduct(productName) {
-  const key = String(productName || "")
-    .trim()
-    .toLowerCase();
+function normalizeProductName(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
-  const matches = offers.filter(offer =>
-    String(offer.product || "")
-      .trim()
-      .toLowerCase() === key
-  );
+function getBestOfferForProduct(productName) {
+  const key = normalizeProductName(productName);
+
+  if (!key) return null;
+
+  const matches = offers.filter(offer => {
+    const offerName = normalizeProductName(offer.product);
+
+    if (!offerName) return false;
+
+    if (offerName === key) return true;
+    if (offerName.includes(key)) return true;
+    if (key.includes(offerName)) return true;
+
+    const keyWords = key.split(" ").filter(w => w.length >= 3);
+    const offerWords = offerName.split(" ").filter(w => w.length >= 3);
+
+    const matchesCount = keyWords.filter(word =>
+      offerWords.some(offerWord =>
+        offerWord.includes(word) || word.includes(offerWord)
+      )
+    ).length;
+
+    return keyWords.length > 0 &&
+      matchesCount >= Math.max(1, Math.ceil(keyWords.length * 0.6));
+  });
 
   if (!matches.length) return null;
 
   return matches
     .slice()
-    .sort((a,b) =>
+    .sort((a, b) =>
       Number(a.offer_price) - Number(b.offer_price)
     )[0];
 }
