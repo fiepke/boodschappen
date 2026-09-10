@@ -210,36 +210,62 @@ function getBestOfferForProduct(productName) {
 
   if (!key) return null;
 
-  const aliases = {
-    "cola": ["cola", "coca cola", "coca-cola"],
-    "cola zero": ["cola zero", "coca cola zero", "coca-cola zero"],
-    "koffie": ["koffie"],
-    "koffiebonen": ["koffiebonen", "koffie bonen"],
-    "koffiepads": ["koffiepads", "koffie pads", "pads"],
-    "koffiemelk": ["koffiemelk", "koffie melk"],
-    "melk": ["melk"],
-    "kaas": ["kaas"],
-    "jonge kaas": ["jonge kaas"],
-    "belegen kaas": ["belegen kaas"],
-    "oude kaas": ["oude kaas"]
-  };
-
-  const searchTerms = aliases[key] || [key];
+  const protectedWords = new Set([
+    "koffie",
+    "melk",
+    "kaas",
+    "brood",
+    "ham",
+    "jam",
+    "thee"
+  ]);
 
   const matches = offers.filter(offer => {
     const offerName = normalizeProductName(offer.product);
 
     if (!offerName) return false;
 
-   return searchTerms.some(term => {
-  const normalizedTerm = normalizeProductName(term);
+    // 1. Exact gelijk
+    if (offerName === key) return true;
 
-  if (offerName === normalizedTerm) return true;
+    // 2. Het product staat als los woord in de aanbieding
+    const words = offerName.split(" ");
+    if (words.includes(key)) return true;
 
-  const words = offerName.split(" ");
+    // 3. Samengestelde woorden toestaan, zoals:
+    // drop -> autodrop
+    // noedel -> noedels
+    // maar niet koffie -> koffiebonen
+    if (
+      key.length >= 4 &&
+      offerName.includes(key) &&
+      !protectedWords.has(key)
+    ) {
+      return true;
+    }
 
-  return words.includes(normalizedTerm);
-});
+    // 4. Meerdere woorden: minimaal 60% moet overeenkomen
+    const keyWords = key
+      .split(" ")
+      .filter(word => word.length >= 3);
+
+    const offerWords = offerName
+      .split(" ")
+      .filter(word => word.length >= 3);
+
+    if (keyWords.length >= 2) {
+      const found = keyWords.filter(word =>
+        offerWords.some(offerWord =>
+          offerWord === word ||
+          offerWord.startsWith(word) ||
+          word.startsWith(offerWord)
+        )
+      ).length;
+
+      return found >= Math.ceil(keyWords.length * 0.6);
+    }
+
+    return false;
   });
 
   if (!matches.length) return null;
