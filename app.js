@@ -112,7 +112,10 @@ function loadLocalState() {
 let state = loadLocalState();
 let filter = "all";
 let searchQuery = "";
-const collapsedCategories = new Set();
+const collapsedCategories = new Set([
+  ...Object.keys(defaultData),
+  ...state.items.map(i => i.category)
+]);
 
 let sb = null;
 let channel = null;
