@@ -163,7 +163,44 @@ async function fetchRemoteItems() {
   if (error) throw error;
   return data || [];
 }
+async function syncDefaultProducts() {
+  if (!sb || !currentUser) return;
 
+  const existingRows = await fetchRemoteItems();
+
+  const existingKeys = new Set(
+    existingRows.map(row =>
+      `${String(row.category).trim().toLowerCase()}|${String(row.product).trim().toLowerCase()}`
+    )
+  );
+
+  const missingRows = [];
+
+  for (const [category, names] of Object.entries(defaultData)) {
+    for (const name of names) {
+      const key =
+        `${category.trim().toLowerCase()}|${name.trim().toLowerCase()}`;
+
+      if (!existingKeys.has(key)) {
+        missingRows.push({
+          product: name,
+          category: category,
+          quantity: 1,
+          checked: false,
+          user_id: currentUser.id
+        });
+      }
+    }
+  }
+
+  if (!missingRows.length) return;
+
+  const { error } = await sb
+    .from(TABLE)
+    .insert(missingRows);
+
+  if (error) throw error;
+}
 async function seedRemoteIfEmpty() {
   if (!currentUser) return [];
 
@@ -207,6 +244,7 @@ currentUser = userData?.user || null;
   showLoginScreen();
   return;
 }
+    await syncDefaultProducts();
     const rows = await seedRemoteIfEmpty();
     state.items = rows.map(dbToItem);
     saveLocalState();
