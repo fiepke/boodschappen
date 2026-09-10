@@ -231,14 +231,15 @@ function getBestOfferForProduct(productName) {
 
     if (!offerName) return false;
 
-    return searchTerms.some(term => {
-      const normalizedTerm = normalizeProductName(term);
+   return searchTerms.some(term => {
+  const normalizedTerm = normalizeProductName(term);
 
-      return (
-        offerName === normalizedTerm ||
-        offerName.includes(normalizedTerm)
-      );
-    });
+  if (offerName === normalizedTerm) return true;
+
+  const words = offerName.split(" ");
+
+  return words.includes(normalizedTerm);
+});
   });
 
   if (!matches.length) return null;
