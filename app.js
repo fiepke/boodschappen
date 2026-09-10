@@ -210,26 +210,35 @@ function getBestOfferForProduct(productName) {
 
   if (!key) return null;
 
+  const aliases = {
+    "cola": ["cola", "coca cola", "coca-cola"],
+    "cola zero": ["cola zero", "coca cola zero", "coca-cola zero"],
+    "koffie": ["koffie"],
+    "koffiebonen": ["koffiebonen", "koffie bonen"],
+    "koffiepads": ["koffiepads", "koffie pads", "pads"],
+    "koffiemelk": ["koffiemelk", "koffie melk"],
+    "melk": ["melk"],
+    "kaas": ["kaas"],
+    "jonge kaas": ["jonge kaas"],
+    "belegen kaas": ["belegen kaas"],
+    "oude kaas": ["oude kaas"]
+  };
+
+  const searchTerms = aliases[key] || [key];
+
   const matches = offers.filter(offer => {
     const offerName = normalizeProductName(offer.product);
 
     if (!offerName) return false;
 
-    if (offerName === key) return true;
-    if (offerName.includes(key)) return true;
-    if (key.includes(offerName)) return true;
+    return searchTerms.some(term => {
+      const normalizedTerm = normalizeProductName(term);
 
-    const keyWords = key.split(" ").filter(w => w.length >= 3);
-    const offerWords = offerName.split(" ").filter(w => w.length >= 3);
-
-    const matchesCount = keyWords.filter(word =>
-      offerWords.some(offerWord =>
-        offerWord.includes(word) || word.includes(offerWord)
-      )
-    ).length;
-
-    return keyWords.length > 0 &&
-      matchesCount >= Math.max(1, Math.ceil(keyWords.length * 0.6));
+      return (
+        offerName === normalizedTerm ||
+        offerName.includes(normalizedTerm)
+      );
+    });
   });
 
   if (!matches.length) return null;
@@ -240,6 +249,7 @@ function getBestOfferForProduct(productName) {
       Number(a.offer_price) - Number(b.offer_price)
     )[0];
 }
+  
 
 function formatOfferDate(value) {
   if (!value) return "";
