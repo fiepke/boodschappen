@@ -121,6 +121,7 @@ let sb = null;
 let channel = null;
 let syncing = false;
 let currentUser = null;
+let offers = [];
 function saveLocalState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
@@ -168,6 +169,64 @@ async function fetchRemoteItems() {
   if (error) throw error;
   return data || [];
 }
+async function fetchOffers() {
+  if (!sb || !currentUser) return [];
+
+  const { data, error } = await sb
+    .from("offers")
+    .select("id,product,store,regular_price,offer_price,valid_from,valid_until,active")
+    .eq("active", true);
+
+  if (error) throw error;
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  return (data || []).filter(offer => {
+    const fromOk =
+      !offer.valid_from ||
+      new Date(offer.valid_from + "T00:00:00") <= today;
+
+    const untilOk =
+      !offer.valid_until ||
+      new Date(offer.valid_until + "T23:59:59") >= today;
+
+    return fromOk && untilOk;
+  });
+}
+
+function getBestOfferForProduct(productName) {
+  const key = String(productName || "")
+    .trim()
+    .toLowerCase();
+
+  const matches = offers.filter(offer =>
+    String(offer.product || "")
+      .trim()
+      .toLowerCase() === key
+  );
+
+  if (!matches.length) return null;
+
+  return matches
+    .slice()
+    .sort((a,b) =>
+      Number(a.offer_price) - Number(b.offer_price)
+    )[0];
+}
+
+function formatOfferDate(value) {
+  if (!value) return "";
+
+  const d = new Date(value + "T00:00:00");
+
+  return d.toLocaleDateString("nl-NL", {
+    day: "numeric",
+    month: "long"
+  });
+}
+
+
 async function syncDefaultProducts() {
   if (!sb || !currentUser) return;
 
@@ -250,6 +309,7 @@ currentUser = userData?.user || null;
   return;
 }
     await syncDefaultProducts();
+    offers = await fetchOffers();
     const rows = await seedRemoteIfEmpty();
     state.items = rows.map(dbToItem);
     saveLocalState();
@@ -519,11 +579,40 @@ if(isCollapsed){
           const check=document.createElement("span");
           check.className="checkmark";
 
-          const name=document.createElement("span");
-          name.className="item-name";
-          name.textContent=item.name;
+       const nameWrap=document.createElement("span");
+nameWrap.style.display="flex";
+nameWrap.style.flexDirection="column";
+nameWrap.style.gap="3px";
 
-          label.append(cb,check,name);
+const name=document.createElement("span");
+name.className="item-name";
+name.textContent=item.name;
+nameWrap.appendChild(name);
+
+const offer=getBestOfferForProduct(item.name);
+
+if(offer){
+  const offerEl=document.createElement("span");
+  offerEl.style.fontSize="12px";
+  offerEl.style.fontWeight="700";
+  offerEl.style.color="#b42318";
+  offerEl.style.lineHeight="1.3";
+
+  const regular = offer.regular_price != null
+    ? `€ ${Number(offer.regular_price).toFixed(2).replace(".",",")} → `
+    : "";
+
+  const until = offer.valid_until
+    ? ` • t/m ${formatOfferDate(offer.valid_until)}`
+    : "";
+
+  offerEl.textContent =
+    `🏷️ ${offer.store}: ${regular}€ ${Number(offer.offer_price).toFixed(2).replace(".",",")}${until}`;
+
+  nameWrap.appendChild(offerEl);
+}
+
+label.append(cb,check,nameWrap);
 
           const actions=document.createElement("div");
           actions.className="item-actions";
