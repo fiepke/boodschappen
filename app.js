@@ -79,9 +79,9 @@ const defaultData = {
   "Persoonlijke verzorging": [
     "Shampoo","Douchegel","Tandpasta","Tandenborstel",
     "Deodorant","Zeep","Scheerschuim"
-  ],
+  ]
 
-  "Overig": []
+  
 };
 
 function freshState() {
