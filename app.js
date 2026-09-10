@@ -112,6 +112,8 @@ function loadLocalState() {
 let state = loadLocalState();
 let filter = "all";
 let searchQuery = "";
+const collapsedCategories = new Set();
+let sb = null;
 let sb = null;
 let channel = null;
 let syncing = false;
@@ -443,16 +445,35 @@ function render() {
 
     const head=document.createElement("div");
     head.className="category-head";
-    const h2=document.createElement("h2");
-    h2.textContent=category;
-    const count=document.createElement("span");
-    count.className="count";
-    const neededCount=state.items.filter(i=>i.category===category && i.needed).length;
-    count.textContent=`${neededCount} nodig`;
-    head.append(h2,count);
+   const h2=document.createElement("h2");
+const isCollapsed = collapsedCategories.has(category);
+h2.textContent = `${isCollapsed ? "▶" : "▼"} ${category}`;
 
-    const itemsBox=document.createElement("div");
-    itemsBox.className="items";
+const count=document.createElement("span");
+count.className="count";
+const neededCount=state.items.filter(i=>i.category===category && i.needed).length;
+count.textContent=`${neededCount} nodig`;
+
+head.style.cursor="pointer";
+head.style.userSelect="none";
+
+head.addEventListener("click",()=>{
+  if(collapsedCategories.has(category)){
+    collapsedCategories.delete(category);
+  } else {
+    collapsedCategories.add(category);
+  }
+  render();
+});
+
+head.append(h2,count);
+
+const itemsBox=document.createElement("div");
+itemsBox.className="items";
+
+if(isCollapsed){
+  itemsBox.style.display="none";
+}
 
    const source = items;
 
