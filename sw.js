@@ -1,5 +1,5 @@
-const CACHE="boodschappen-cache-v3";
-const ACTIVA=["./","./index.html","./style.css","./app.js","./manifest.json","./icoon-192.png","./icoon-512.png"];
+const CACHE="boodschappen-cache-v4";
+const ACTIVA=["./","./index.html","./style.css","./app.js","./manifest.json","./icon-192.png","./icon-512.png"];
 
 self.addEventListener("install",event=>{
   self.skipWaiting();
