@@ -656,7 +656,25 @@ if (productOffers.length) {
   offersBox.style.gap = "4px";
   offersBox.style.marginTop = "2px";
 
-  productOffers.forEach(offer => {
+  // Per supermarkt alleen de goedkoopste passende aanbieding bewaren
+  const bestPerStore = Object.values(
+    productOffers.reduce((acc, offer) => {
+      const store = offer.store || "Onbekend";
+
+      if (
+        !acc[store] ||
+        Number(offer.offer_price) < Number(acc[store].offer_price)
+      ) {
+        acc[store] = offer;
+      }
+
+      return acc;
+    }, {})
+  ).sort((a, b) =>
+    Number(a.offer_price) - Number(b.offer_price)
+  );
+
+  bestPerStore.forEach((offer, index) => {
     const offerEl = document.createElement("span");
 
     offerEl.style.fontSize = "12px";
@@ -672,15 +690,20 @@ if (productOffers.length) {
       ? ` • t/m ${formatOfferDate(offer.valid_until)}`
       : "";
 
+    const cheapest = index === 0
+      ? "⭐ Goedkoopste — "
+      : "";
+
     offerEl.textContent =
-      `🏷️ ${offer.product} — ${offer.store}: ${regular}€ ${Number(offer.offer_price).toFixed(2).replace(".", ",")}${until}`;
+      `${cheapest}🏷️ ${offer.product} — ${offer.store}: ${regular}€ ${Number(offer.offer_price).toFixed(2).replace(".", ",")}${until}`;
 
     offersBox.appendChild(offerEl);
   });
 
   nameWrap.appendChild(offersBox);
 }
-label.append(cb,check,nameWrap);
+
+label.append(ch,check,nameWrap);
 
           const actions=document.createElement("div");
           actions.className="item-actions";
