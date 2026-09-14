@@ -205,10 +205,10 @@ function normalizeProductName(value) {
     .trim();
 }
 
-function getBestOfferForProduct(productName) {
+function getOffersForProduct(productName) {
   const key = normalizeProductName(productName);
 
-  if (!key) return null;
+  if (!key) return [];
 
   const protectedWords = new Set([
     "koffie",
@@ -225,17 +225,14 @@ function getBestOfferForProduct(productName) {
 
     if (!offerName) return false;
 
-    // 1. Exact gelijk
+    // Exact gelijk
     if (offerName === key) return true;
 
-    // 2. Het product staat als los woord in de aanbieding
+    // Product staat als los woord in de aanbieding
     const words = offerName.split(" ");
     if (words.includes(key)) return true;
 
-    // 3. Samengestelde woorden toestaan, zoals:
-    // drop -> autodrop
-    // noedel -> noedels
-    // maar niet koffie -> koffiebonen
+    // Samengestelde woorden, zoals drop -> autodrop
     if (
       key.length >= 4 &&
       offerName.includes(key) &&
@@ -244,7 +241,7 @@ function getBestOfferForProduct(productName) {
       return true;
     }
 
-    // 4. Meerdere woorden: minimaal 60% moet overeenkomen
+    // Meerdere woorden: minimaal 60% moet overeenkomen
     const keyWords = key
       .split(" ")
       .filter(word => word.length >= 3);
@@ -268,13 +265,11 @@ function getBestOfferForProduct(productName) {
     return false;
   });
 
-  if (!matches.length) return null;
-
   return matches
     .slice()
     .sort((a, b) =>
       Number(a.offer_price) - Number(b.offer_price)
-    )[0];
+    );
 }
   
 
@@ -652,29 +647,39 @@ name.className="item-name";
 name.textContent=item.name;
 nameWrap.appendChild(name);
 
-const offer=getBestOfferForProduct(item.name);
+const productOffers = getOffersForProduct(item.name);
 
-if(offer){
-  const offerEl=document.createElement("span");
-  offerEl.style.fontSize="12px";
-  offerEl.style.fontWeight="700";
-  offerEl.style.color="#b42318";
-  offerEl.style.lineHeight="1.3";
+if (productOffers.length) {
+  const offersBox = document.createElement("span");
+  offersBox.style.display = "flex";
+  offersBox.style.flexDirection = "column";
+  offersBox.style.gap = "4px";
+  offersBox.style.marginTop = "2px";
 
-  const regular = offer.regular_price != null
-    ? `€ ${Number(offer.regular_price).toFixed(2).replace(".",",")} → `
-    : "";
+  productOffers.forEach(offer => {
+    const offerEl = document.createElement("span");
 
-  const until = offer.valid_until
-    ? ` • t/m ${formatOfferDate(offer.valid_until)}`
-    : "";
+    offerEl.style.fontSize = "12px";
+    offerEl.style.fontWeight = "700";
+    offerEl.style.color = "#b42318";
+    offerEl.style.lineHeight = "1.3";
 
-  offerEl.textContent =
-    `🏷️ ${offer.store}: ${regular}€ ${Number(offer.offer_price).toFixed(2).replace(".",",")}${until}`;
+    const regular = offer.regular_price != null
+      ? `€ ${Number(offer.regular_price).toFixed(2).replace(".", ",")} → `
+      : "";
 
-  nameWrap.appendChild(offerEl);
+    const until = offer.valid_until
+      ? ` • t/m ${formatOfferDate(offer.valid_until)}`
+      : "";
+
+    offerEl.textContent =
+      `🏷️ ${offer.product} — ${offer.store}: ${regular}€ ${Number(offer.offer_price).toFixed(2).replace(".", ",")}${until}`;
+
+    offersBox.appendChild(offerEl);
+  });
+
+  nameWrap.appendChild(offersBox);
 }
-
 label.append(cb,check,nameWrap);
 
           const actions=document.createElement("div");
