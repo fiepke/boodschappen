@@ -703,7 +703,7 @@ if (productOffers.length) {
   nameWrap.appendChild(offersBox);
 }
 
-label.append(ch,check,nameWrap);
+label.append(cb,check,nameWrap);
 
           const actions=document.createElement("div");
           actions.className="item-actions";
